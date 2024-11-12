@@ -16,21 +16,17 @@ Queue::Queue() {
 
 
 void Queue::insertIntoMiddle(int value, int pos){
-
     /*
     Условие ТЗ:
     очередь не пустая,
     вставляется элемент в середину или конец списка, то есть вставку в начало списка не нужно рассматривать,
     если pos больше длины списка, то нужно вставить элемент в конец списка.
     */
-
+    if (pos < 1) return;
     if (pos > _size) {
-        _queue_mutex->lock();
         push_back(value);
-        _queue_mutex->unlock();
         return;
     }
-
     Node* newNode = new Node();
     Node* prev;
     Node* cur;
@@ -51,15 +47,16 @@ void Queue::insertIntoMiddle(int value, int pos){
     cur = prev->_next;
     prev->_node_mutex->lock();
     cur->_node_mutex->lock();
-    _queue_mutex->unlock();
     prev->_next = newNode;
     newNode->_next = cur;
     prev->_node_mutex->unlock();
     cur->_node_mutex->unlock();
     _size++;
+     _queue_mutex->unlock();
 }
     
 void Queue::push_back(int value){
+    _queue_mutex->lock();
     // создаем новый узел
     Node* node = new Node();
     node->_value = value;
@@ -72,6 +69,7 @@ void Queue::push_back(int value){
     // Обновляем указатель next последнего узла на указатель на новый узел
     last->_next = node;
     _size++;
+    _queue_mutex->unlock();
     return;
 }
 
